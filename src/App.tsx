@@ -15,27 +15,20 @@ function App() {
   }
 
   const [posts, setPosts] = useState<Provider[]>([]);
-
   const [currentPage, setCurrentPage] = useState(1);
   const [post] = useState(9);
 
-  // set api call page number
-  const [num, setNum] = useState(0);
-  const incNum = () => {
-    setNum(num + 1);
-  };
-
+  let num = 0;
   useEffect(() => {
-    setTimeout(() => {
+    let interval = setInterval(() => {
+      num++;
       const url = `https://hn.algolia.com/api/v1/search_by_date?tags=story&page=${num}`;
       fetch(url)
         .then((res) => res.json())
         .then((data) => {
           setPosts(data?.hits);
           if (num === 50) {
-            setNum(0);
-          } else {
-            incNum();
+            clearInterval(interval);
           }
         });
     }, 10000);
