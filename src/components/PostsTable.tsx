@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -9,36 +9,75 @@ import TableRow from "@mui/material/TableRow";
 import { Container } from "@mui/material";
 import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";
+import { Box } from "@mui/system";
 
-const columns = [
-  { id: "author", label: "Author", minWidth: 170 },
-  { id: "created_at", label: "Created At", minWidth: 170 },
+const columns: (
+  | {
+      id: string;
+      label: string;
+      minWidth: number;
+      format?: undefined;
+    }
+  | {
+      id: string;
+      label: string;
+      minWidth: number;
+      format: (value: any) => any;
+    }
+)[] = [
+  {
+    id: "author",
+    label: "Author",
+    minWidth: 170,
+    format: (value: any) => value.toLocaleString("en-US"),
+  },
+  {
+    id: "created_at",
+    label: "Created At",
+    minWidth: 170,
+    format: (value: any) => value.toLocaleString("en-US"),
+  },
   {
     id: "title",
     label: "Title",
     minWidth: 170,
-    format: (value) => value.toLocaleString("en-US"),
+    format: (value: any) => value.toLocaleString("en-US"),
   },
   {
     id: "url",
     label: "URL",
     minWidth: 170,
-    format: (value) => value.toLocaleString("en-US"),
+    format: (value: any) => value.toLocaleString("en-US"),
   },
 ];
 
-function createData(author, created_at, title, url, json) {
+function createData(
+  author: string,
+  created_at: string,
+  title: string,
+  url: string,
+  json: any
+) {
   return { author, created_at, title, url, json };
 }
 
 export default function PostsTable() {
-  const [page, setPage] = useState(0);
-  const [urlPage, setUrlPage] = useState(0);
-  const [rowsPerPage] = useState(20);
-  const [posts, setPosts] = useState([]);
-  const [json, setJson] = useState();
+  interface Provider {
+    posts: [];
+    title: string;
+    url: string;
+    created_at: string;
+    author: string;
+    objectID: number;
+  }
 
-  useEffect(() => {
+  const [page, setPage] = React.useState(0);
+  const [urlPage, setUrlPage] = React.useState(0);
+  const [rowsPerPage] = React.useState(20);
+  const [posts, setPosts] = React.useState<Provider[]>([]);
+  const [json, setJson] = React.useState();
+
+  React.useEffect(() => {
     const fetchPosts = async () => {
       const res = await fetch(
         `https://hn.algolia.com/api/v1/search_by_date?tags=story&page=${urlPage}`
@@ -56,11 +95,11 @@ export default function PostsTable() {
     return () => clearInterval(interval);
   }, [urlPage]);
 
-  const handleChange = (event, value) => {
+  const handleChange = (event: any, value: any) => {
     setPage(value);
   };
 
-  const showJson = (event) => {
+  const showJson = (event: any) => {
     setJson(event);
   };
 
@@ -74,7 +113,6 @@ export default function PostsTable() {
                 {columns.map((column) => (
                   <TableCell
                     key={column.id}
-                    align={column.align}
                     style={{ minWidth: column.minWidth }}
                   >
                     {column.label}
@@ -86,12 +124,13 @@ export default function PostsTable() {
               {posts &&
                 posts
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((post) => {
+                  .map((post: any) => {
                     createData(
                       post.author,
                       post.created_at,
                       post.title,
-                      post.url
+                      post.url,
+                      json
                     );
                     return (
                       <TableRow
@@ -105,8 +144,8 @@ export default function PostsTable() {
                         {columns.map((column) => {
                           const value = post[column.id];
                           return (
-                            <TableCell key={column.id} align={column.align}>
-                              {column.format && typeof value === "number"
+                            <TableCell key={column.id}>
+                              {column?.format && typeof value === "number"
                                 ? column.format(value)
                                 : value}
                             </TableCell>
@@ -119,8 +158,8 @@ export default function PostsTable() {
           </Table>
         </TableContainer>
         <Stack spacing={2}>
-          <div
-            style={{
+          <Box
+            sx={{
               padding: "15px",
               display: "flex",
               justifyContent: "center",
@@ -134,7 +173,7 @@ export default function PostsTable() {
               page={page}
               onChange={handleChange}
             />
-          </div>
+          </Box>
         </Stack>
       </Paper>
       {json && (
