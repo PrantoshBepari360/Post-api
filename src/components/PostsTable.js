@@ -5,10 +5,10 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
-import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 import { Container } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import Pagination from "@mui/material/Pagination";
+import Stack from "@mui/material/Stack";
 
 const columns = [
   { id: "author", label: "Author", minWidth: 170 },
@@ -27,16 +27,16 @@ const columns = [
   },
 ];
 
-function createData(author, created_at, title, url) {
-  return { author, created_at, title, url };
+function createData(author, created_at, title, url, json) {
+  return { author, created_at, title, url, json };
 }
 
 export default function PostsTable() {
-  const navigate = useNavigate();
   const [page, setPage] = useState(0);
   const [urlPage, setUrlPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(20);
+  const [rowsPerPage] = useState(20);
   const [posts, setPosts] = useState([]);
+  const [json, setJson] = useState();
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -56,13 +56,12 @@ export default function PostsTable() {
     return () => clearInterval(interval);
   }, [urlPage]);
 
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
+  const handleChange = (event, value) => {
+    setPage(value);
   };
 
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(+event.target.value);
-    setPage(0);
+  const showJson = (event) => {
+    setJson(event);
   };
 
   return (
@@ -88,11 +87,16 @@ export default function PostsTable() {
                 posts
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((post) => {
-                    createData(post.author, post.created_at, post.title, post.url);
+                    createData(
+                      post.author,
+                      post.created_at,
+                      post.title,
+                      post.url
+                    );
                     return (
                       <TableRow
                         sx={{ cursor: "pointer" }}
-                        onClick={() => navigate(`/post/${post.objectID}`)}
+                        onClick={() => showJson(post)}
                         hover
                         role="checkbox"
                         tabIndex={-1}
@@ -114,16 +118,32 @@ export default function PostsTable() {
             </TableBody>
           </Table>
         </TableContainer>
-        <TablePagination
-          rowsPerPageOptions={[10, 20]}
-          component="div"
-          count={posts.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
+        <Stack spacing={2}>
+          <div
+            style={{
+              padding: "15px",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              backgroundColor: "#f5f5f5",
+            }}
+          >
+            <Pagination
+              color="secondary"
+              count={(posts?.length - 20) / 20}
+              page={page}
+              onChange={handleChange}
+            />
+          </div>
+        </Stack>
       </Paper>
+      {json && (
+        <Paper sx={{ backgroundColor: "#f5f5f5" }}>
+          <pre style={{ padding: "30px", overflowX: "scroll" }}>
+            <code>{JSON.stringify(json, null, 2)}</code>
+          </pre>
+        </Paper>
+      )}
     </Container>
   );
 }

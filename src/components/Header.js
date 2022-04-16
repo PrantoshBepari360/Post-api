@@ -1,6 +1,6 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { AppBar, Toolbar, Typography } from '@mui/material';
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { AppBar, Toolbar, Typography } from "@mui/material";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -8,8 +8,8 @@ const Header = () => {
     <AppBar position="static" color="primary">
       <Toolbar variant="dense">
         <Typography
-          sx={{ cursor: 'pointer' }}
-          onClick={() => navigate('/')}
+          sx={{ cursor: "pointer" }}
+          onClick={() => navigate("/")}
           variant="h6"
           color="inherit"
           component="div"
